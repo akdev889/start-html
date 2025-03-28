@@ -254,6 +254,30 @@
         font-size: 0.9rem;
       }
     }
+
+    .reset-button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: var(--button-bg-color);
+      color: var(--button-text-color);
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .reset-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      background-color: var(--button-active-bg-color);
+      color: var(--button-active-text-color);
+    }
   </style>
 </head>
 <body>
@@ -266,6 +290,8 @@
     <div class="board" id="board"></div>
     <div class="message" id="message"></div>
     <div class="loading" id="loading">🤖 Thinking...</div>
+    <!-- Reset Button -->
+    <a href="" class="reset-button">🔄 Reset Game</a>
   </div>
   <button class="dark-mode-toggle" id="darkModeToggle" onclick="toggleDarkMode()">🌙</button>
 
@@ -450,4 +476,3 @@
   </script>
 </body>
 </html>
-``` 
