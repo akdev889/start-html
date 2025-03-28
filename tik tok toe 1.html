@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tic-Tac-Toe Levels</title>
+  <title>سطوح بازی دوز</title>
   <style>
     :root {
-      --bg-color: #f4f4f4;
-      --text-color: #000;
-      --cell-bg-color: #fff;
-      --cell-border-color: #ddd;
-      --button-bg-color: #ddd;
-      --button-text-color: #000;
-      --button-active-bg-color: #f44336;
-      --button-active-text-color: #fff;
+      --bg-color: rgb(244, 244, 244);
+      --text-color: rgb(0, 0, 0);
+      --cell-bg-color: rgb(255, 255, 255);
+      --cell-border-color: rgb(221, 221, 221);
+      --button-bg-color: rgb(221, 221, 221);
+      --button-text-color: rgb(0, 0, 0);
+      --button-active-bg-color: rgb(111, 66, 193);
+      --button-active-text-color: rgb(255, 255, 255);
       --cell-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Light mode shadow */
     }
 
@@ -32,7 +32,7 @@
     .board {
       display: grid;
       grid-template-columns: repeat(3, 100px);
-      grid-gap: 9px; /* Increased distance between cells by 4px */
+      grid-gap: 13px; /* Increased distance between cells by 4px */
     }
 
     .cell {
@@ -48,6 +48,12 @@
       border-radius: 7px; /* Soften corners by 3 pixels more */
       box-shadow: var(--cell-shadow); /* Add shadow */
       cursor: pointer;
+      transition: all 0.3s ease; /* Smooth transition for all properties */
+    }
+
+    .cell:hover {
+      transform: scale(1.1); /* Slightly enlarge the cell on hover */
+      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3); /* Add a stronger shadow on hover */
     }
 
     .cell.taken {
@@ -58,6 +64,8 @@
       margin-top: 20px;
       font-size: 18px;
       text-align: center;
+      min-height: 24px; /* Prevent layout shift when "Thinking..." is displayed */
+      transition: color 0.3s ease; /* Smooth transition for text color */
     }
 
     .difficulty {
@@ -73,6 +81,7 @@
       color: var(--button-text-color);
       border: none;
       border-radius: 5px;
+      transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for button colors */
     }
 
     .difficulty button.active {
@@ -96,25 +105,31 @@
       justify-content: center;
       align-items: center;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Smooth transition for dark mode toggle */
+    }
+
+    .dark-mode-toggle:hover {
+      transform: rotate(360deg); /* Rotate the button on hover */
     }
 
     .loading {
       margin-top: 10px;
       font-size: 16px;
       display: none;
+      transition: opacity 0.3s ease; /* Smooth transition for loading visibility */
     }
   </style>
 </head>
 <body>
   <div class="difficulty">
-    <button id="easy" onclick="setDifficulty('easy')">Easy</button>
-    <button id="normal" onclick="setDifficulty('normal')">Normal</button>
-    <button id="impossible" onclick="setDifficulty('impossible')">Impossible</button>
+    <button id="easy" onclick="setDifficulty('easy')">آسان</button>
+    <button id="normal" onclick="setDifficulty('normal')">معمولی</button>
+    <button id="impossible" onclick="setDifficulty('impossible')">غیرممکن</button>
   </div>
   <div>
     <div class="board" id="board"></div>
     <div class="message" id="message"></div>
-    <div class="loading" id="loading">⏳ Thinking...</div>
+    <div class="loading" id="loading">⏳ در حال فکر کردن...</div>
   </div>
   <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
 
@@ -186,11 +201,11 @@
       cells[index] = currentPlayer;
       renderBoard();
       if (checkWinner()) {
-        message.textContent = `${currentPlayer} wins!`;
+        message.textContent = `${currentPlayer} برنده شد!`;
         return;
       }
       if (cells.every(cell => cell)) {
-        message.textContent = 'It\'s a draw!';
+        message.textContent = 'بازی مساوی شد!';
         return;
       }
       currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
@@ -214,11 +229,11 @@
       }
       renderBoard();
       if (checkWinner()) {
-        message.textContent = 'O wins!';
+        message.textContent = 'O برنده شد!';
         return;
       }
       if (cells.every(cell => cell)) {
-        message.textContent = 'It\'s a draw!';
+        message.textContent = 'بازی مساوی شد!';
         return;
       }
       currentPlayer = 'X';
@@ -295,25 +310,25 @@
     function toggleDarkMode() {
       isDarkMode = !isDarkMode;
       if (isDarkMode) {
-        document.documentElement.style.setProperty('--bg-color', '#121212');
-        document.documentElement.style.setProperty('--text-color', '#fff');
-        document.documentElement.style.setProperty('--cell-bg-color', '#1e1e1e');
-        document.documentElement.style.setProperty('--cell-border-color', '#333');
-        document.documentElement.style.setProperty('--button-bg-color', '#333');
-        document.documentElement.style.setProperty('--button-text-color', '#fff');
-        document.documentElement.style.setProperty('--button-active-bg-color', '#bb86fc');
-        document.documentElement.style.setProperty('--button-active-text-color', '#000');
+        document.documentElement.style.setProperty('--bg-color', 'rgb(18, 18, 18)');
+        document.documentElement.style.setProperty('--text-color', 'rgb(255, 255, 255)');
+        document.documentElement.style.setProperty('--cell-bg-color', 'rgb(30, 30, 30)');
+        document.documentElement.style.setProperty('--cell-border-color', 'rgb(51, 51, 51)');
+        document.documentElement.style.setProperty('--button-bg-color', 'rgb(51, 51, 51)');
+        document.documentElement.style.setProperty('--button-text-color', 'rgb(255, 255, 255)');
+        document.documentElement.style.setProperty('--button-active-bg-color', 'rgb(187, 134, 252)');
+        document.documentElement.style.setProperty('--button-active-text-color', 'rgb(0, 0, 0)');
         document.documentElement.style.setProperty('--cell-shadow', '2px 2px 5px rgba(255, 255, 255, 0.2)'); // White shadow for dark mode
         darkModeToggle.textContent = '☀️';
       } else {
-        document.documentElement.style.setProperty('--bg-color', '#f4f4f4');
-        document.documentElement.style.setProperty('--text-color', '#000');
-        document.documentElement.style.setProperty('--cell-bg-color', '#fff');
-        document.documentElement.style.setProperty('--cell-border-color', '#ddd');
-        document.documentElement.style.setProperty('--button-bg-color', '#ddd');
-        document.documentElement.style.setProperty('--button-text-color', '#000');
-        document.documentElement.style.setProperty('--button-active-bg-color', '#f44336');
-        document.documentElement.style.setProperty('--button-active-text-color', '#fff');
+        document.documentElement.style.setProperty('--bg-color', 'rgb(244, 244, 244)');
+        document.documentElement.style.setProperty('--text-color', 'rgb(0, 0, 0)');
+        document.documentElement.style.setProperty('--cell-bg-color', 'rgb(255, 255, 255)');
+        document.documentElement.style.setProperty('--cell-border-color', 'rgb(221, 221, 221)');
+        document.documentElement.style.setProperty('--button-bg-color', 'rgb(221, 221, 221)');
+        document.documentElement.style.setProperty('--button-text-color', 'rgb(0, 0, 0)');
+        document.documentElement.style.setProperty('--button-active-bg-color', 'rgb(244, 67, 54)');
+        document.documentElement.style.setProperty('--button-active-text-color', 'rgb(255, 255, 255)');
         document.documentElement.style.setProperty('--cell-shadow', '2px 2px 5px rgba(0, 0, 0, 0.2)'); // Black shadow for light mode
         darkModeToggle.textContent = '🌙';
       }
