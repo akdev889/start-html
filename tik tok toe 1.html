@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سطوح بازی دوز</title>
+  <title>Tic-Tac-Toe Levels</title>
   <style>
     :root {
       --bg-color: rgb(244, 244, 244);
@@ -12,7 +12,7 @@
       --cell-border-color: rgb(221, 221, 221);
       --button-bg-color: rgb(221, 221, 221);
       --button-text-color: rgb(0, 0, 0);
-      --button-active-bg-color: rgb(111, 66, 193);
+      --button-active-bg-color: rgb(255, 0, 0);
       --button-active-text-color: rgb(255, 255, 255);
       --cell-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Light mode shadow */
     }
@@ -44,16 +44,15 @@
       font-size: 24px;
       font-weight: bold;
       background-color: var(--cell-bg-color);
-      border: 2px solid var(--cell-border-color);
-      border-radius: 7px; /* Soften corners by 3 pixels more */
-      box-shadow: var(--cell-shadow); /* Add shadow */
+      border: 2px solid rgb(138, 43, 226); /* Neon purple border */
+      border-radius: 7px; /* Soften corners */
       cursor: pointer;
       transition: all 0.3s ease; /* Smooth transition for all properties */
     }
 
     .cell:hover {
       transform: scale(1.1); /* Slightly enlarge the cell on hover */
-      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3); /* Add a stronger shadow on hover */
+      border-color: rgb(186, 85, 211); /* Lighter neon purple on hover */
     }
 
     .cell.taken {
@@ -89,6 +88,11 @@
       color: var(--button-active-text-color);
     }
 
+    .difficulty button#normal.active {
+      background-color: red; /* Highlight Normal level in red */
+      color: white;
+    }
+
     .dark-mode-toggle {
       position: absolute;
       top: 10px;
@@ -118,31 +122,32 @@
       display: none;
       transition: opacity 0.3s ease; /* Smooth transition for loading visibility */
     }
+
+    body.dark-mode .difficulty button#normal.active {
+      background-color: rgbrgb(187, 134, 252);
+      color: white;
+    }
   </style>
 </head>
 <body>
   <div class="difficulty">
-    <button id="easy" onclick="setDifficulty('easy')">آسان</button>
-    <button id="normal" onclick="setDifficulty('normal')">معمولی</button>
-    <button id="impossible" onclick="setDifficulty('impossible')">غیرممکن</button>
+    <button id="easy" onclick="setDifficulty('easy')">Easy</button>
+    <button id="normal" onclick="setDifficulty('normal')">Normal</button>
+    <button id="impossible" onclick="setDifficulty('impossible')">Impossible</button>
   </div>
   <div>
     <div class="board" id="board"></div>
     <div class="message" id="message"></div>
-    <div class="loading" id="loading">⏳ در حال فکر کردن...</div>
+    <div class="loading" id="loading">⏳ Thinking...</div>
   </div>
   <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
 
   <script>
-    const board = document.getElementById('board');
-    const message = document.getElementById('message');
-    const loading = document.getElementById('loading');
-    const darkModeToggle = document.querySelector('.dark-mode-toggle');
-    let cells = ['', '', '', '', '', '', '', '', ''];
     let currentPlayer = 'X';
     let difficulty = 'impossible';
     let randomMoves = 0;
     let isDarkMode = false;
+    let isBotThinking = false; // Flag to track if the bot is thinking
 
     // Winning combinations
     const winningCombos = [
@@ -197,23 +202,26 @@
 
     // Make a move
     function makeMove(index) {
-      if (cells[index] || checkWinner()) return;
+      if (cells[index] || checkWinner() || isBotThinking) return; // Prevent move if bot is thinking
       cells[index] = currentPlayer;
       renderBoard();
       if (checkWinner()) {
-        message.textContent = `${currentPlayer} برنده شد!`;
+        message.textContent = `${currentPlayer} wins!`;
         return;
       }
       if (cells.every(cell => cell)) {
-        message.textContent = 'بازی مساوی شد!';
+        message.textContent = 'It\'s a draw!';
         return;
       }
       currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
       if (currentPlayer === 'O') {
+        isBotThinking = true; // Set bot thinking flag
         loading.style.display = 'block'; // Show hourglass
         setTimeout(() => {
           makeAIMove();
           loading.style.display = 'none'; // Hide hourglass
+          isBotThinking = false; // Reset bot thinking flag
+          message.textContent = 'Your turn'; // Display "Your turn" message
         }, 2000); // 2-second delay
       }
     }
@@ -229,11 +237,11 @@
       }
       renderBoard();
       if (checkWinner()) {
-        message.textContent = 'O برنده شد!';
+        message.textContent = 'O wins!';
         return;
       }
       if (cells.every(cell => cell)) {
-        message.textContent = 'بازی مساوی شد!';
+        message.textContent = 'It\'s a draw!';
         return;
       }
       currentPlayer = 'X';
@@ -310,6 +318,7 @@
     function toggleDarkMode() {
       isDarkMode = !isDarkMode;
       if (isDarkMode) {
+        document.body.classList.add('dark-mode'); // Add dark-mode class
         document.documentElement.style.setProperty('--bg-color', 'rgb(18, 18, 18)');
         document.documentElement.style.setProperty('--text-color', 'rgb(255, 255, 255)');
         document.documentElement.style.setProperty('--cell-bg-color', 'rgb(30, 30, 30)');
@@ -318,9 +327,9 @@
         document.documentElement.style.setProperty('--button-text-color', 'rgb(255, 255, 255)');
         document.documentElement.style.setProperty('--button-active-bg-color', 'rgb(187, 134, 252)');
         document.documentElement.style.setProperty('--button-active-text-color', 'rgb(0, 0, 0)');
-        document.documentElement.style.setProperty('--cell-shadow', '2px 2px 5px rgba(255, 255, 255, 0.2)'); // White shadow for dark mode
         darkModeToggle.textContent = '☀️';
       } else {
+        document.body.classList.remove('dark-mode'); // Remove dark-mode class
         document.documentElement.style.setProperty('--bg-color', 'rgb(244, 244, 244)');
         document.documentElement.style.setProperty('--text-color', 'rgb(0, 0, 0)');
         document.documentElement.style.setProperty('--cell-bg-color', 'rgb(255, 255, 255)');
@@ -329,12 +338,14 @@
         document.documentElement.style.setProperty('--button-text-color', 'rgb(0, 0, 0)');
         document.documentElement.style.setProperty('--button-active-bg-color', 'rgb(244, 67, 54)');
         document.documentElement.style.setProperty('--button-active-text-color', 'rgb(255, 255, 255)');
-        document.documentElement.style.setProperty('--cell-shadow', '2px 2px 5px rgba(0, 0, 0, 0.2)'); // Black shadow for light mode
         darkModeToggle.textContent = '🌙';
       }
     }
 
     // Initialize the game
+    document.addEventListener('DOMContentLoaded', () => {
+      setDifficulty('normal'); // Set "Normal" as the default level
+    });
     renderBoard();
   </script>
 </body>
