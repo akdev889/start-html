@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی دوز</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+            width: max-content;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 2em;
+            text-align: center;
+            line-height: 100px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        .cell.taken {
+            cursor: not-allowed;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>بازی دوز</h1>
+    <label for="difficulty">انتخاب سطح دشواری:</label>
+    <select id="difficulty">
+        <option value="easy">ساده</option>
+        <option value="medium">متوسط</option>
+        <option value="impossible">غیرممکن</option>
+    </select>
+    <div class="board" id="board"></div>
+    <div class="controls">
+        <button onclick="resetGame()">شروع مجدد</button>
+    </div>
+    <script>
+        const boardElement = document.getElementById("board");
+        const difficultySelect = document.getElementById("difficulty");
+        let board, player, aiMoves;
+        
+        function resetGame() {
+            board = [["", "", ""], ["", "", ""], ["", "", ""]];
+            player = "X";
+            aiMoves = 0;
+            createBoard();
+        }
+        
+        function createBoard() {
+            boardElement.innerHTML = "";
+            board.forEach((row, r) => {
+                row.forEach((cell, c) => {
+                    const cellElement = document.createElement("div");
+                    cellElement.classList.add("cell");
+                    cellElement.textContent = cell;
+                    cellElement.addEventListener("click", () => makeMove(r, c));
+                    boardElement.appendChild(cellElement);
+                });
+            });
+        }
+
+        function checkWinner(player) {
+            for (let i = 0; i < 3; i++) {
+                if (board[i][0] === player && board[i][1] === player && board[i][2] === player) return true;
+                if (board[0][i] === player && board[1][i] === player && board[2][i] === player) return true;
+            }
+            if (board[0][0] === player && board[1][1] === player && board[2][2] === player) return true;
+            if (board[0][2] === player && board[1][1] === player && board[2][0] === player) return true;
+            return false;
+        }
+
+        function isBoardFull() {
+            return board.every(row => row.every(cell => cell !== ""));
+        }
+
+        function makeMove(r, c) {
+            if (board[r][c] === "") {
+                board[r][c] = player;
+                createBoard();
+                if (checkWinner(player)) {
+                    setTimeout(() => alert(player + " برنده شد!"), 100);
+                    return;
+                }
+                if (isBoardFull()) {
+                    setTimeout(() => alert("بازی مساوی شد!"), 100);
+                    return;
+                }
+                setTimeout(() => aiMove(difficultySelect.value), 500);
+            }
+        }
+
+        function aiMove(difficulty) {
+            let emptyCells = [];
+            board.forEach((row, r) => {
+                row.forEach((cell, c) => {
+                    if (cell === "") emptyCells.push([r, c]);
+                });
+            });
+            if (emptyCells.length === 0) return;
+
+            if ((difficulty === "easy" && aiMoves < 2) || (difficulty === "medium" && aiMoves < 1)) {
+                let [r, c] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                board[r][c] = "O";
+                aiMoves++;
+            } else {
+                let bestMove = minimax(board, "O").index;
+                if (bestMove) {
+                    board[bestMove[0]][bestMove[1]] = "O";
+                }
+            }
+            createBoard();
+            if (checkWinner("O")) {
+                setTimeout(() => alert("O برنده شد!"), 100);
+                return;
+            }
+            if (isBoardFull()) {
+                setTimeout(() => alert("بازی مساوی شد!"), 100);
+            }
+        }
+
+        function minimax(newBoard, player) {
+            let emptyCells = [];
+            newBoard.forEach((row, r) => {
+                row.forEach((cell, c) => {
+                    if (cell === "") emptyCells.push([r, c]);
+                });
+            });
+            if (checkWinner("X")) return { score: -10 };
+            if (checkWinner("O")) return { score: 10 };
+            if (emptyCells.length === 0) return { score: 0 };
+
+            let moves = [];
+            for (let [r, c] of emptyCells) {
+                let move = { index: [r, c] };
+                newBoard[r][c] = player;
+                let result = minimax(newBoard, player === "O" ? "X" : "O");
+                move.score = result.score;
+                newBoard[r][c] = "";
+                moves.push(move);
+            }
+
+            return moves.reduce((best, move) =>
+                (player === "O" ? move.score > best.score : move.score < best.score) ? move : best);
+        }
+
+        resetGame();
+    </script>
+</body>
+</html>

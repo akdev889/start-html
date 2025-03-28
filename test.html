@@ -1,1 +1,42 @@
-<button>علی</button>
+<style>
+  body {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100vh; /* Full viewport height */
+    margin: 0; /* Remove default margin */
+    background-color: #f4f4f4; /* Light background color */
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    grid-gap: 10px; /* Space between buttons */
+  }
+
+  .circle-button {
+    background-color: red; /* Button color */
+    border: none; /* Remove border */
+    color: white; /* Text color */
+    width: 90px; /* Button width (1.5x) */
+    height: 90px; /* Button height (1.5x) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px; /* Text size */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 6px; /* Round corners by 4px */
+  }
+</style>
+
+<div class="grid">
+  <button class="circle-button">1</button>
+  <button class="circle-button">2</button>
+  <button class="circle-button">3</button>
+  <button class="circle-button">4</button>
+  <button class="circle-button">5</button>
+  <button class="circle-button">6</button>
+  <button class="circle-button">7</button>
+  <button class="circle-button">8</button>
+  <button class="circle-button">9</button>
+</div>
