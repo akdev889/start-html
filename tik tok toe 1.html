@@ -171,6 +171,12 @@
       color: var(--button-active-text-color);
     }
 
+    .difficulty button.disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
     .message {
       min-height: 24px;
       font-size: 1.2rem;
@@ -318,6 +324,12 @@
     };
 
     function setDifficulty(level) {
+      // اگر بازی در حال انجام است، اجازه تغییر سطح را ندهید
+      if (gameState.cells.some(cell => cell !== '')) {
+        elements.message.textContent = 'You cannot change the difficulty during the game!';
+        return;
+      }
+
       gameState.difficulty = level;
       gameState.randomMoves = level === 'easy' ? 2 : level === 'normal' ? 1 : 0;
       resetGame();
@@ -339,6 +351,11 @@
       elements.message.textContent = '';
       elements.loading.style.display = 'none';
       renderBoard();
+
+      // فعال کردن دکمه‌های انتخاب سطح
+      document.querySelectorAll('.difficulty button').forEach(button => {
+        button.classList.remove('disabled');
+      });
     }
 
     function renderBoard() {
@@ -358,6 +375,11 @@
 
     function makeMove(index) {
       if (gameState.cells[index] || checkWinner() || gameState.isBotThinking) return;
+
+      // غیرفعال کردن دکمه‌های انتخاب سطح
+      document.querySelectorAll('.difficulty button').forEach(button => {
+        button.classList.add('disabled');
+      });
 
       gameState.cells[index] = gameState.currentPlayer;
       renderBoard();
