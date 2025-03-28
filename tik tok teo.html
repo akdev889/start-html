@@ -65,7 +65,7 @@
                     const cellElement = document.createElement("div");
                     cellElement.classList.add("cell");
                     cellElement.textContent = cell;
-                    cellElement.addEventListener("click", () => makeMove(r, c));
+                    cellElement.onclick = () => makeMove(r, c);
                     boardElement.appendChild(cellElement);
                 });
             });
@@ -97,6 +97,7 @@
                     setTimeout(() => alert("بازی مساوی شد!"), 100);
                     return;
                 }
+                player = "O";
                 setTimeout(() => aiMove(difficultySelect.value), 500);
             }
         }
@@ -127,7 +128,9 @@
             }
             if (isBoardFull()) {
                 setTimeout(() => alert("بازی مساوی شد!"), 100);
+                return;
             }
+            player = "X";
         }
 
         function minimax(newBoard, player) {

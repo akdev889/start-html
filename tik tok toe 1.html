@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe Levels</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      background-color: white;
+      border: 2px solid #ddd;
+      cursor: pointer;
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .difficulty {
+      margin-bottom: 20px;
+    }
+
+    .difficulty button {
+      margin: 0 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="difficulty">
+    <button onclick="setDifficulty('easy')">Easy</button>
+    <button onclick="setDifficulty('normal')">Normal</button>
+    <button onclick="setDifficulty('impossible')">Impossible</button>
+  </div>
+  <div>
+    <div class="board" id="board"></div>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    const board = document.getElementById('board');
+    const message = document.getElementById('message');
+    let cells = ['', '', '', '', '', '', '', '', ''];
+    let currentPlayer = 'X';
+    let difficulty = 'impossible';
+    let randomMoves = 0;
+
+    // Winning combinations
+    const winningCombos = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    // Set difficulty
+    function setDifficulty(level) {
+      difficulty = level;
+      randomMoves = level === 'easy' ? 2 : level === 'normal' ? 1 : 0;
+      resetGame();
+    }
+
+    // Reset the game
+    function resetGame() {
+      cells = ['', '', '', '', '', '', '', '', ''];
+      currentPlayer = 'X';
+      message.textContent = '';
+      renderBoard();
+    }
+
+    // Render the board
+    function renderBoard() {
+      board.innerHTML = '';
+      cells.forEach((cell, index) => {
+        const cellDiv = document.createElement('div');
+        cellDiv.classList.add('cell');
+        if (cell) cellDiv.classList.add('taken');
+        cellDiv.textContent = cell;
+        cellDiv.addEventListener('click', () => makeMove(index));
+        board.appendChild(cellDiv);
+      });
+    }
+
+    // Make a move
+    function makeMove(index) {
+      if (cells[index] || checkWinner()) return;
+      cells[index] = currentPlayer;
+      renderBoard();
+      if (checkWinner()) {
+        message.textContent = `${currentPlayer} wins!`;
+        return;
+      }
+      if (cells.every(cell => cell)) {
+        message.textContent = 'It\'s a draw!';
+        return;
+      }
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      if (currentPlayer === 'O') {
+        makeAIMove();
+      }
+    }
+
+    // AI move
+    function makeAIMove() {
+      if (randomMoves > 0) {
+        makeRandomMove();
+        randomMoves--;
+      } else {
+        const bestMove = getBestMove();
+        cells[bestMove] = 'O';
+      }
+      renderBoard();
+      if (checkWinner()) {
+        message.textContent = 'O wins!';
+        return;
+      }
+      if (cells.every(cell => cell)) {
+        message.textContent = 'It\'s a draw!';
+        return;
+      }
+      currentPlayer = 'X';
+    }
+
+    // Make a random move
+    function makeRandomMove() {
+      let availableMoves = cells.map((cell, index) => (cell === '' ? index : null)).filter(index => index !== null);
+      const randomIndex = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+      cells[randomIndex] = 'O';
+    }
+
+    // Minimax algorithm
+    function getBestMove() {
+      let bestScore = -Infinity;
+      let move;
+      cells.forEach((cell, index) => {
+        if (!cell) {
+          cells[index] = 'O';
+          const score = minimax(cells, 0, false);
+          cells[index] = '';
+          if (score > bestScore) {
+            bestScore = score;
+            move = index;
+          }
+        }
+      });
+      return move;
+    }
+
+    function minimax(board, depth, isMaximizing) {
+      const winner = checkWinner();
+      if (winner === 'O') return 10 - depth;
+      if (winner === 'X') return depth - 10;
+      if (board.every(cell => cell)) return 0;
+
+      if (isMaximizing) {
+        let bestScore = -Infinity;
+        board.forEach((cell, index) => {
+          if (!cell) {
+            board[index] = 'O';
+            const score = minimax(board, depth + 1, false);
+            board[index] = '';
+            bestScore = Math.max(score, bestScore);
+          }
+        });
+        return bestScore;
+      } else {
+        let bestScore = Infinity;
+        board.forEach((cell, index) => {
+          if (!cell) {
+            board[index] = 'X';
+            const score = minimax(board, depth + 1, true);
+            board[index] = '';
+            bestScore = Math.min(score, bestScore);
+          }
+        });
+        return bestScore;
+      }
+    }
+
+    // Check for a winner
+    function checkWinner() {
+      for (const combo of winningCombos) {
+        const [a, b, c] = combo;
+        if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+          return cells[a];
+        }
+      }
+      return null;
+    }
+
+    // Initialize the game
+    renderBoard();
+  </script>
+</body>
+</html>
