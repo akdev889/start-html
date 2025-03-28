@@ -3,18 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tic-Tac-Toe Levels</title>
+  <title>Animated Tic-Tac-Toe</title>
   <style>
     :root {
-      --bg-color: rgb(244, 244, 244);
-      --text-color: rgb(0, 0, 0);
-      --cell-bg-color: rgb(255, 255, 255);
-      --cell-border-color: rgb(221, 221, 221);
-      --button-bg-color: rgb(221, 221, 221);
-      --button-text-color: rgb(0, 0, 0);
-      --button-active-bg-color: rgb(255, 0, 0);
-      --button-active-text-color: rgb(255, 255, 255);
-      --cell-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Light mode shadow */
+      --primary-color: #6366f1;
+      --secondary-color: #8b5cf6;
+      --x-color: #ec4899;
+      --o-color: #3b82f6;
+      --bg-color: #f8fafc;
+      --text-color: #1e293b;
+      --cell-bg-color: #ffffff;
+      --cell-border-color: #e2e8f0;
+      --button-bg-color: #f1f5f9;
+      --button-text-color: #1e293b;
+      --button-active-bg-color: #6366f1;
+      --button-active-text-color: #ffffff;
+      --cell-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
@@ -22,17 +32,33 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
+      transition: all 0.3s ease;
+    }
+
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
 
     .board {
       display: grid;
       grid-template-columns: repeat(3, 100px);
-      grid-gap: 13px; /* Increased distance between cells by 4px */
+      gap: 15px;
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(5px);
     }
 
     .cell {
@@ -41,46 +67,103 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 24px;
-      font-weight: bold;
       background-color: var(--cell-bg-color);
-      border: 2px solid rgb(138, 43, 226); /* Neon purple border */
-      border-radius: 7px; /* Soften corners */
+      border: 2px solid var(--cell-border-color);
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s ease; /* Smooth transition for all properties */
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .cell:hover {
-      transform: scale(1.1); /* Slightly enlarge the cell on hover */
-      border-color: rgb(186, 85, 211); /* Lighter neon purple on hover */
+      transform: scale(1.05);
+      box-shadow: var(--cell-shadow);
+      border-color: var(--primary-color);
     }
 
     .cell.taken {
       cursor: not-allowed;
     }
 
-    .message {
-      margin-top: 20px;
-      font-size: 18px;
-      text-align: center;
-      min-height: 24px; /* Prevent layout shift when "Thinking..." is displayed */
-      transition: color 0.3s ease; /* Smooth transition for text color */
+    /* X Animation */
+    .cell[data-symbol="X"]::before,
+    .cell[data-symbol="X"]::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 60px;
+      background-color: var(--x-color);
+      border-radius: 5px;
+      opacity: 0;
+    }
+
+    .cell[data-symbol="X"]::before {
+      transform: rotate(45deg);
+      animation: drawLine 0.3s forwards;
+    }
+
+    .cell[data-symbol="X"]::after {
+      transform: rotate(-45deg);
+      animation: drawLine 0.3s 0.15s forwards;
+    }
+
+    /* O Animation */
+    .cell[data-symbol="O"]::before {
+      content: '';
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border: 10px solid var(--o-color);
+      border-radius: 50%;
+      animation: drawCircle 0.3s forwards;
+      opacity: 0;
+    }
+
+    @keyframes drawLine {
+      from {
+        height: 0;
+        opacity: 1;
+      }
+      to {
+        height: 60px;
+        opacity: 1;
+      }
+    }
+
+    @keyframes drawCircle {
+      from {
+        transform: scale(0);
+        opacity: 1;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .difficulty {
-      margin-bottom: 20px;
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
 
     .difficulty button {
-      margin: 0 5px;
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
       background-color: var(--button-bg-color);
       color: var(--button-text-color);
-      border: none;
-      border-radius: 5px;
-      transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for button colors */
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .difficulty button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .difficulty button.active {
@@ -88,188 +171,242 @@
       color: var(--button-active-text-color);
     }
 
-    .difficulty button#normal.active {
-      background-color: red; /* Highlight Normal level in red */
-      color: white;
+    .message {
+      min-height: 24px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      text-align: center;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .loading {
+      display: none;
+      font-size: 1.2rem;
+      color: var(--primary-color);
+      animation: pulse 1.5s infinite;
     }
 
     .dark-mode-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 40px;
-      height: 40px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
       border: none;
       border-radius: 50%;
       background-color: var(--button-bg-color);
       color: var(--button-text-color);
-      font-size: 20px;
+      font-size: 1.5rem;
       cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Smooth transition for dark mode toggle */
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .dark-mode-toggle:hover {
-      transform: rotate(360deg); /* Rotate the button on hover */
+      transform: rotate(360deg) scale(1.1);
     }
 
-    .loading {
-      margin-top: 10px;
-      font-size: 16px;
-      display: none;
-      transition: opacity 0.3s ease; /* Smooth transition for loading visibility */
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --text-color: #f1f5f9;
+      --cell-bg-color: #1e293b;
+      --cell-border-color: #334155;
+      --button-bg-color: #1e293b;
+      --button-text-color: #f1f5f9;
+      --x-color: #f472b6;
+      --o-color: #60a5fa;
     }
 
-    body.dark-mode .difficulty button#normal.active {
-      background-color: rgbrgb(187, 134, 252);
-      color: white;
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .board {
+        grid-template-columns: repeat(3, 80px);
+        gap: 10px;
+      }
+
+      .cell {
+        width: 80px;
+        height: 80px;
+      }
+
+      .cell[data-symbol="X"]::before,
+      .cell[data-symbol="X"]::after {
+        height: 45px;
+      }
+
+      .cell[data-symbol="O"]::before {
+        width: 45px;
+        height: 45px;
+      }
+
+      .difficulty button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="difficulty">
-    <button id="easy" onclick="setDifficulty('easy')">Easy</button>
-    <button id="normal" onclick="setDifficulty('normal')">Normal</button>
-    <button id="impossible" onclick="setDifficulty('impossible')">Impossible</button>
-  </div>
-  <div>
+  <div class="game-container">
+    <div class="difficulty">
+      <button id="easy" onclick="setDifficulty('easy')">Easy</button>
+      <button id="normal" onclick="setDifficulty('normal')">Normal</button>
+      <button id="impossible" onclick="setDifficulty('impossible')">Impossible</button>
+    </div>
     <div class="board" id="board"></div>
     <div class="message" id="message"></div>
-    <div class="loading" id="loading">⏳ Thinking...</div>
+    <div class="loading" id="loading">🤖 Thinking...</div>
   </div>
-  <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+  <button class="dark-mode-toggle" id="darkModeToggle" onclick="toggleDarkMode()">🌙</button>
 
   <script>
-    let currentPlayer = 'X';
-    let difficulty = 'impossible';
-    let randomMoves = 0;
-    let isDarkMode = false;
-    let isBotThinking = false; // Flag to track if the bot is thinking
+    const gameState = {
+      currentPlayer: 'X',
+      difficulty: 'normal',
+      randomMoves: 1,
+      isDarkMode: false,
+      isBotThinking: false,
+      cells: Array(9).fill(''),
+      winningCombos: [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ]
+    };
 
-    // Winning combinations
-    const winningCombos = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6]
-    ];
+    const elements = {
+      board: document.getElementById('board'),
+      message: document.getElementById('message'),
+      loading: document.getElementById('loading'),
+      darkModeToggle: document.getElementById('darkModeToggle')
+    };
 
-    // Set difficulty
     function setDifficulty(level) {
-      difficulty = level;
-      randomMoves = level === 'easy' ? 2 : level === 'normal' ? 1 : 0;
+      gameState.difficulty = level;
+      gameState.randomMoves = level === 'easy' ? 2 : level === 'normal' ? 1 : 0;
       resetGame();
       highlightSelectedLevel(level);
     }
 
-    // Highlight the selected difficulty level
     function highlightSelectedLevel(level) {
-      const buttons = document.querySelectorAll('.difficulty button');
-      buttons.forEach(button => {
-        button.classList.remove('active');
+      document.querySelectorAll('.difficulty button').forEach(button => {
+        button.classList.toggle('active', button.id === level);
       });
-      document.getElementById(level).classList.add('active');
     }
 
-    // Reset the game
     function resetGame() {
-      cells = ['', '', '', '', '', '', '', '', ''];
-      currentPlayer = 'X';
-      message.textContent = '';
-      loading.style.display = 'none';
+      Object.assign(gameState, {
+        cells: Array(9).fill(''),
+        currentPlayer: 'X',
+        isBotThinking: false
+      });
+      elements.message.textContent = '';
+      elements.loading.style.display = 'none';
       renderBoard();
     }
 
-    // Render the board
     function renderBoard() {
-      board.innerHTML = '';
-      cells.forEach((cell, index) => {
-        const cellDiv = document.createElement('div');
-        cellDiv.classList.add('cell');
-        if (cell) cellDiv.classList.add('taken');
-        cellDiv.textContent = cell;
-        cellDiv.addEventListener('click', () => makeMove(index));
-        board.appendChild(cellDiv);
+      gameState.cells.forEach((cell, index) => {
+        const cellElement = elements.board.children[index];
+        if (!cellElement) {
+          const newCell = document.createElement('div');
+          newCell.classList.add('cell');
+          newCell.setAttribute('onclick', `makeMove(${index})`);
+          elements.board.appendChild(newCell);
+        } else if (!cellElement.classList.contains('taken') && cell) {
+          cellElement.classList.add('taken');
+          cellElement.setAttribute('data-symbol', cell);
+        }
       });
     }
 
-    // Make a move
     function makeMove(index) {
-      if (cells[index] || checkWinner() || isBotThinking) return; // Prevent move if bot is thinking
-      cells[index] = currentPlayer;
-      renderBoard();
-      if (checkWinner()) {
-        message.textContent = `${currentPlayer} wins!`;
-        return;
-      }
-      if (cells.every(cell => cell)) {
-        message.textContent = 'It\'s a draw!';
-        return;
-      }
-      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-      if (currentPlayer === 'O') {
-        isBotThinking = true; // Set bot thinking flag
-        loading.style.display = 'block'; // Show hourglass
-        setTimeout(() => {
-          makeAIMove();
-          loading.style.display = 'none'; // Hide hourglass
-          isBotThinking = false; // Reset bot thinking flag
-          message.textContent = 'Your turn'; // Display "Your turn" message
-        }, 2000); // 2-second delay
-      }
-    }
+      if (gameState.cells[index] || checkWinner() || gameState.isBotThinking) return;
 
-    // AI move
-    function makeAIMove() {
-      if (randomMoves > 0) {
-        makeRandomMove();
-        randomMoves--;
+      gameState.cells[index] = gameState.currentPlayer;
+      renderBoard();
+
+      const winner = checkWinner();
+      if (winner) {
+        elements.message.textContent = `${winner} wins!`;
+        return;
+      }
+
+      if (gameState.cells.every(cell => cell)) {
+        elements.message.textContent = 'It\'s a draw!';
+        return;
+      }
+
+      gameState.currentPlayer = gameState.currentPlayer === 'X' ? 'O' : 'X';
+
+      if (gameState.currentPlayer === 'O') {
+        gameState.isBotThinking = true;
+        elements.loading.style.display = 'block';
+        elements.message.textContent = "It's the robot's turn";
+        setTimeout(makeAIMove, 1000);
       } else {
-        const bestMove = getBestMove();
-        cells[bestMove] = 'O';
+        elements.message.textContent = "It's your turn";
       }
+    }
+
+    function makeAIMove() {
+      const move = gameState.randomMoves > 0 ? getRandomMove() : getBestMove();
+      gameState.cells[move] = 'O';
+      if (gameState.randomMoves > 0) gameState.randomMoves--;
+
       renderBoard();
-      if (checkWinner()) {
-        message.textContent = 'O wins!';
+      elements.loading.style.display = 'none';
+      gameState.isBotThinking = false;
+
+      const winner = checkWinner();
+      if (winner) {
+        elements.message.textContent = `${winner} wins!`;
         return;
       }
-      if (cells.every(cell => cell)) {
-        message.textContent = 'It\'s a draw!';
+
+      if (gameState.cells.every(cell => cell)) {
+        elements.message.textContent = 'It\'s a draw!';
         return;
       }
-      currentPlayer = 'X';
+
+      gameState.currentPlayer = 'X';
+      elements.message.textContent = "It's your turn";
     }
 
-    // Make a random move
-    function makeRandomMove() {
-      let availableMoves = cells.map((cell, index) => (cell === '' ? index : null)).filter(index => index !== null);
-      const randomIndex = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-      cells[randomIndex] = 'O';
+    function getRandomMove() {
+      const availableMoves = gameState.cells
+        .map((cell, index) => cell === '' ? index : null)
+        .filter(index => index !== null);
+      return availableMoves[Math.floor(Math.random() * availableMoves.length)];
     }
 
-    // Minimax algorithm
     function getBestMove() {
       let bestScore = -Infinity;
-      let move;
-      cells.forEach((cell, index) => {
+      let bestMove;
+
+      gameState.cells.forEach((cell, index) => {
         if (!cell) {
-          cells[index] = 'O';
-          const score = minimax(cells, 0, false);
-          cells[index] = '';
+          gameState.cells[index] = 'O';
+          const score = minimax(gameState.cells, 0, false);
+          gameState.cells[index] = '';
           if (score > bestScore) {
             bestScore = score;
-            move = index;
+            bestMove = index;
           }
         }
       });
-      return move;
+
+      return bestMove;
     }
 
     function minimax(board, depth, isMaximizing) {
@@ -278,75 +415,39 @@
       if (winner === 'X') return depth - 10;
       if (board.every(cell => cell)) return 0;
 
-      if (isMaximizing) {
-        let bestScore = -Infinity;
-        board.forEach((cell, index) => {
-          if (!cell) {
-            board[index] = 'O';
-            const score = minimax(board, depth + 1, false);
-            board[index] = '';
-            bestScore = Math.max(score, bestScore);
-          }
-        });
-        return bestScore;
-      } else {
-        let bestScore = Infinity;
-        board.forEach((cell, index) => {
-          if (!cell) {
-            board[index] = 'X';
-            const score = minimax(board, depth + 1, true);
-            board[index] = '';
-            bestScore = Math.min(score, bestScore);
-          }
-        });
-        return bestScore;
-      }
+      const scores = [];
+      board.forEach((cell, index) => {
+        if (!cell) {
+          board[index] = isMaximizing ? 'O' : 'X';
+          scores.push(minimax(board, depth + 1, !isMaximizing));
+          board[index] = '';
+        }
+      });
+
+      return isMaximizing ? Math.max(...scores) : Math.min(...scores);
     }
 
-    // Check for a winner
     function checkWinner() {
-      for (const combo of winningCombos) {
-        const [a, b, c] = combo;
-        if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-          return cells[a];
+      for (const [a, b, c] of gameState.winningCombos) {
+        if (gameState.cells[a] && 
+            gameState.cells[a] === gameState.cells[b] && 
+            gameState.cells[a] === gameState.cells[c]) {
+          return gameState.cells[a];
         }
       }
       return null;
     }
 
-    // Toggle dark mode
     function toggleDarkMode() {
-      isDarkMode = !isDarkMode;
-      if (isDarkMode) {
-        document.body.classList.add('dark-mode'); // Add dark-mode class
-        document.documentElement.style.setProperty('--bg-color', 'rgb(18, 18, 18)');
-        document.documentElement.style.setProperty('--text-color', 'rgb(255, 255, 255)');
-        document.documentElement.style.setProperty('--cell-bg-color', 'rgb(30, 30, 30)');
-        document.documentElement.style.setProperty('--cell-border-color', 'rgb(51, 51, 51)');
-        document.documentElement.style.setProperty('--button-bg-color', 'rgb(51, 51, 51)');
-        document.documentElement.style.setProperty('--button-text-color', 'rgb(255, 255, 255)');
-        document.documentElement.style.setProperty('--button-active-bg-color', 'rgb(187, 134, 252)');
-        document.documentElement.style.setProperty('--button-active-text-color', 'rgb(0, 0, 0)');
-        darkModeToggle.textContent = '☀️';
-      } else {
-        document.body.classList.remove('dark-mode'); // Remove dark-mode class
-        document.documentElement.style.setProperty('--bg-color', 'rgb(244, 244, 244)');
-        document.documentElement.style.setProperty('--text-color', 'rgb(0, 0, 0)');
-        document.documentElement.style.setProperty('--cell-bg-color', 'rgb(255, 255, 255)');
-        document.documentElement.style.setProperty('--cell-border-color', 'rgb(221, 221, 221)');
-        document.documentElement.style.setProperty('--button-bg-color', 'rgb(221, 221, 221)');
-        document.documentElement.style.setProperty('--button-text-color', 'rgb(0, 0, 0)');
-        document.documentElement.style.setProperty('--button-active-bg-color', 'rgb(244, 67, 54)');
-        document.documentElement.style.setProperty('--button-active-text-color', 'rgb(255, 255, 255)');
-        darkModeToggle.textContent = '🌙';
-      }
+      gameState.isDarkMode = !gameState.isDarkMode;
+      document.body.classList.toggle('dark-mode', gameState.isDarkMode);
+      elements.darkModeToggle.textContent = gameState.isDarkMode ? '☀️' : '🌙';
     }
 
-    // Initialize the game
     document.addEventListener('DOMContentLoaded', () => {
-      setDifficulty('normal'); // Set "Normal" as the default level
+      setDifficulty('normal');
     });
-    renderBoard();
   </script>
 </body>
 </html>
+``` 

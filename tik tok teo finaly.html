@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe Levels</title>
+  <style>
+    :root {
+      --bg-color-light: rgb(244, 244, 244);
+      --text-color-light: rgb(0, 0, 0);
+      --cell-bg-color-light: rgb(255, 255, 255);
+      --cell-border-color-light: rgb(221, 221, 221);
+      --button-bg-color-light: rgb(221, 221, 221);
+      --button-text-color-light: rgb(0, 0, 0);
+      --button-active-bg-color-light: rgb(255, 0, 0);
+      --button-active-text-color-light: rgb(255, 255, 255);
+
+      --bg-color-dark: rgb(18, 18, 18);
+      --text-color-dark: rgb(255, 255, 255);
+      --cell-bg-color-dark: rgb(30, 30, 30);
+      --cell-border-color-dark: rgb(51, 51, 51);
+      --button-bg-color-dark: rgb(51, 51, 51);
+      --button-text-color-dark: rgb(255, 255, 255);
+      --button-active-bg-color-dark: rgb(186, 85, 211); /* Purple for Normal in dark mode */
+      --button-active-text-color-dark: rgb(255, 255, 255);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color-light);
+      color: var(--text-color-light);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode {
+      background-color: var(--bg-color-dark);
+      color: var(--text-color-dark);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 13px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      background-color: var(--cell-bg-color-light);
+      border: 2px solid rgb(138, 43, 226); /* Neon purple border */
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    body.dark-mode .cell {
+      background-color: var(--cell-bg-color-dark);
+      border-color: rgb(186, 85, 211); /* Purple border in dark mode */
+    }
+
+    .cell:hover {
+      transform: scale(1.1);
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+    }
+
+    .difficulty {
+      margin-bottom: 20px;
+    }
+
+    .difficulty button {
+      margin: 0 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: var(--button-bg-color-light);
+      color: var(--button-text-color-light);
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode .difficulty button {
+      background-color: var(--button-bg-color-dark);
+      color: var(--button-text-color-dark);
+    }
+
+    .difficulty button.active {
+      background-color: var(--button-active-bg-color-light);
+      color: var(--button-active-text-color-light);
+    }
+
+    body.dark-mode .difficulty button.active {
+      background-color: var(--button-active-bg-color-dark);
+      color: var(--button-active-text-color-dark);
+    }
+
+    .dark-mode-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background-color: var(--button-bg-color-light);
+      color: var(--button-text-color-light);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    }
+
+    body.dark-mode .dark-mode-toggle {
+      background-color: var(--button-bg-color-dark);
+      color: var(--button-text-color-dark);
+    }
+
+    .dark-mode-toggle:hover {
+      transform: rotate(360deg);
+    }
+
+    .loading {
+      margin-top: 10px;
+      font-size: 16px;
+      display: none;
+      transition: opacity 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="difficulty">
+    <button id="easy" onclick="setDifficulty('easy')">Easy</button>
+    <button id="normal" onclick="setDifficulty('normal')">Normal</button>
+    <button id="impossible" onclick="setDifficulty('impossible')">Impossible</button>
+  </div>
+  <div>
+    <div class="board" id="board"></div>
+    <div class="message" id="message"></div>
+    <div class="loading" id="loading">⏳ Thinking...</div>
+  </div>
+  <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+
+  <script>
+    let currentPlayer = 'X';
+    let difficulty = 'impossible';
+    let randomMoves = 0;
+    let isDarkMode = false;
+    let isBotThinking = false;
+
+    const winningCombos = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    function setDifficulty(level) {
+      difficulty = level;
+      randomMoves = level === 'easy' ? 2 : level === 'normal' ? 1 : 0;
+      resetGame();
+      highlightSelectedLevel(level);
+    }
+
+    function highlightSelectedLevel(level) {
+      document.querySelectorAll('.difficulty button').forEach(button => {
+        button.classList.remove('active');
+      });
+      document.getElementById(level).classList.add('active');
+    }
+
+    function resetGame() {
+      cells = ['', '', '', '', '', '', '', '', ''];
+      currentPlayer = 'X';
+      message.textContent = '';
+      loading.style.display = 'none';
+      renderBoard();
+    }
+
+    function renderBoard() {
+      board.innerHTML = '';
+      cells.forEach((cell, index) => {
+        const cellDiv = document.createElement('div');
+        cellDiv.classList.add('cell');
+        if (cell) cellDiv.classList.add('taken');
+        cellDiv.textContent = cell;
+        cellDiv.addEventListener('click', () => makeMove(index));
+        board.appendChild(cellDiv);
+      });
+    }
+
+    function toggleDarkMode() {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark-mode', isDarkMode);
+      darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setDifficulty('normal');
+      renderBoard();
+    });
+  </script>
+</body>
+</html>
